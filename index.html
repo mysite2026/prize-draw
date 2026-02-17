@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Розыгрыш к 23 февраля</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+
+            /* --- НАЧАЛО БЛОКА ФОНА --- */
+            /* Сейчас установлен светло-зеленый градиент. 
+               Если хотите картинку, раскомментируйте строку ниже и вставьте ссылку: */
+            background-image: url('картинка.webp');
+
+            /* background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%); /* Тематический фон */
+            background-size: cover;     /* Растягивать фон на весь экран */
+            background-position: center; /* Центрировать фон */
+            background-repeat: no-repeat; /* Не повторять картинку */
+            background-attachment: fixed; /* Фиксировать фон при прокрутке */
+            /* --- КОНЕЦ БЛОКА ФОНА --- */
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1.main-title {
+            color: #d32f2f;
+            font-size: 2.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .game-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin-bottom: 30px;
+        }
+
+        /* Барабан с красным контуром */
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #d32f2f;
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: conic-gradient(
+                #FFCDD2 0deg 60deg,
+                #90CAF9 60deg 120deg,
+                #A5D6A7 120deg 180deg,
+                #FFF59D 180deg 240deg,
+                #E1BEE7 240deg 300deg,
+                #FFAB91 300deg 360deg
+            );
+        }
+
+        /* Текст внутри барабана */
+        .wheel-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: 0 0;
+            font-weight: bold;
+            font-size: 20px; /* Крупный текст */
+            color: #333;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            width: 50%;
+            text-align: center;
+            padding: 0;
+            line-height: 0; 
+        }
+
+        /* СТРЕЛКА: Исправленное позиционирование */
+        .arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70px;
+            height: 6px;
+            background-color: #d32f2f;
+            margin-top: -3px; 
+            transform-origin: 0 50%;
+            transform: rotate(-90deg);
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        /* Треугольник на конце стрелки */
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 18px solid #d32f2f;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+
+        .spin-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .spin-btn:hover {
+            background-color: #1b5e20;
+        }
+
+        .spin-btn:active {
+            transform: scale(0.95);
+        }
+
+        .spin-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 2px solid #2e7d32;
+        }
+
+        .close-modal {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .claim-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: #2e7d32;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1rem;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .claim-btn:hover {
+            background-color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="main-title">Розыгрыш к 23 февраля</h1>
+
+    <div class="game-container">
+        <!-- Барабан -->
+        <div class="wheel" id="wheel"></div>
+        <!-- Стрелка -->
+        <div class="arrow"></div>
+    </div>
+
+    <button class="spin-btn" id="spinBtn">Крутить барабан</button>
+
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2 style="color: #2e7d32; margin-top: 0;">Поздравляем!</h2>
+            <p id="modalText" style="font-size: 18px;">Ваш приз...</p>
+            <a href="#" id="claimPrizeBtn" class="claim-btn" target="_blank" rel="noopener noreferrer">Забрать приз</a>
+            <button class="close-modal" onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // ДАННЫЕ ПРИЗОВ с URL
+        const prizes = [
+            { id: 1, textOnWheel: "ПРИЗ 1", popupText: "Посоревнуйся с ИИ!", url: "https://quickdraw.withgoogle.com/" },
+            { id: 2, textOnWheel: "ПРИЗ 2", popupText: "Попутешествуй онлайн по красивым местам!", url: "https://www.airpano.ru/360photo_list.php" },
+            { id: 3, textOnWheel: "ПРИЗ 3", popupText: "Отвлекись от работы - понаблюдай за звездами!", url: "http://stars.chromeexperiments.com/" },
+            { id: 4, textOnWheel: "ПРИЗ 4", popupText: "Поиграй в настолки онлайн!", url: "https://boardgamearena.com/gamelist" },
+            { id: 5, textOnWheel: "ПРИЗ 5", popupText: "Посети Лувр онлайн!", url: "https://www.louvre.fr/visites-en-ligne/petitegalerie/saison1/#/petite_galerie_3/" },
+            { id: 6, textOnWheel: "ПРИЗ 6", popupText: "Поиграй в игры!", url: "https://artsandculture.google.com/play" }
+        ];
+
+        const wheel = document.getElementById('wheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const modal = document.getElementById('resultModal');
+        const modalText = document.getElementById('modalText');
+        const claimPrizeBtn = document.getElementById('claimPrizeBtn');
+
+        const segments = 6;
+        const arc = 360 / segments; 
+
+        function drawWheelText() {
+            prizes.forEach((prize, index) => {
+                const textEl = document.createElement('div');
+                textEl.className = 'wheel-text';
+                textEl.innerText = prize.textOnWheel;
+                const angle = (index * arc) + (arc / 2);
+                textEl.style.transform = `rotate(${angle - 90}deg) translate(25px, 0px)`;
+                wheel.appendChild(textEl);
+            });
+        }
+
+        drawWheelText();
+
+        let currentRotation = 0;
+
+        spinBtn.addEventListener('click', () => {
+            spinBtn.disabled = true;
+            // Логика вращения
+            const randomOffset = Math.floor(Math.random() * 360);
+            const spins = 360 * 3; 
+            const totalDegrees = currentRotation + spins + randomOffset;
+            wheel.style.transform = `rotate(-${totalDegrees}deg)`;
+            currentRotation = totalDegrees;
+
+            setTimeout(() => {
+                showPrize(totalDegrees);
+                spinBtn.disabled = false;
+            }, 4000);
+        });
+
+        function showPrize(degrees) {
+            const actualDeg = degrees % 360;
+            const winningIndex = Math.floor(((360 - actualDeg) % 360) / arc);
+            const prize = prizes[winningIndex];
+            modalText.innerText = prize.popupText;
+
+            // Устанавливаем ссылку на кнопку «Забрать приз»
+            claimPrizeBtn.href = prize.url;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            claimPrizeBtn.href = "#";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
